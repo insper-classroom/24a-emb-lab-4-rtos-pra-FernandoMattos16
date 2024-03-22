@@ -17,7 +17,6 @@ const uint LED_OLED = 20;
 const uint BTN_OLED = 28;
 
 // Variáveis para cálculo do tempo e distância
-volatile int time_init, time_end;
 float sound_speed = 0.0343;
 
 // Recursos do FreeRTOS
@@ -32,10 +31,11 @@ const int ECHO_TIMEOUT = 300000; // 30ms
 
 // Função callback para o pino do echo
 void gpio_callback(uint gpio, uint32_t events) {
+    int time_init;
     if (events == GPIO_IRQ_EDGE_RISE) {
         time_init = to_us_since_boot(get_absolute_time());
     } else if (events == GPIO_IRQ_EDGE_FALL) {
-        time_end = to_us_since_boot(get_absolute_time());
+        int time_end = to_us_since_boot(get_absolute_time());
         int time_diff = time_end - time_init;
         xQueueSendFromISR(xQueueTime, &time_diff, NULL);
         xSemaphoreGiveFromISR(xSemaphoreTrigger, NULL);
